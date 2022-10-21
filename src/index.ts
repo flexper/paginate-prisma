@@ -8,15 +8,9 @@ export const getPaginationsData = <T>(options: PaginationOptions<T> = {}) =>
     limit: options.limit || 10,
   } as { page: number; limit: number });
 
-interface Model {
-  [x: string]: {
-    findMany: ({ where }: { where: unknown }) => void;
-  };
-}
-
-export async function paginate<PrismaClient extends Model, T>(
+export async function paginate<P, T>(
   model: Exclude<
-    keyof PrismaClient,
+    keyof P,
     | '$on'
     | '$connect'
     | '$disconnect'
@@ -27,14 +21,18 @@ export async function paginate<PrismaClient extends Model, T>(
     | '$queryRawUnsafe'
     | '$transaction'
   >,
+  //TODO: find a way to remove ts ignore to autocomplete
+  //@ts-ignore
   query: Exclude<
-    Parameters<PrismaClient[typeof model]['findMany']>[0],
+    //@ts-ignore
+    Parameters<P[typeof model]['findMany']>[0],
     undefined
   >['where'],
-  //TODO: Refacto to use dot notation to full indexation (see rosetty)
+  //TODO: Refacto to use dot notation to full indexation (see rosetty) to filter or sort by subfields (ex: user.role)
   options: PaginationOptions<keyof T> = {},
-  additionalPrismaQuery: Omit<
-    Exclude<Parameters<PrismaClient[typeof model]['findMany']>[0], undefined>,
+  additionalPrismaQuery?: Omit<
+    //@ts-ignore
+    Exclude<Parameters<P[typeof model]['findMany']>[0], undefined>,
     'where' | 'skip' | 'take' | 'orderBy'
   >
 ) {
