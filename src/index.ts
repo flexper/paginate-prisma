@@ -8,7 +8,13 @@ export const getPaginationsData = <T>(options: PaginationOptions<T> = {}) =>
     limit: options.limit || 10,
   } as { page: number; limit: number });
 
-export async function paginate<PrismaClient, T>(
+interface Model {
+  [x: string]: {
+    findMany: ({ where }: { where: unknown }) => void;
+  };
+}
+
+export async function paginate<PrismaClient extends Model, T>(
   model: Exclude<
     keyof PrismaClient,
     | '$on'
@@ -30,7 +36,7 @@ export async function paginate<PrismaClient, T>(
   additionalPrismaQuery: Omit<
     Exclude<Parameters<PrismaClient[typeof model]['findMany']>[0], undefined>,
     'where' | 'skip' | 'take' | 'orderBy'
-  > = {}
+  >
 ) {
   const { page, limit } = getPaginationsData<T>({
     page: options?.page,
