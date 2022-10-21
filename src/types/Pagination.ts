@@ -56,3 +56,7 @@ export class PaginationResult {
   @Field()
   items!: number;
 }
+
+export interface Paginated<T> extends PaginationResult {
+  data: T[];
+}

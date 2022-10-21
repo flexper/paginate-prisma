@@ -1,32 +1,25 @@
 import { faker } from '@faker-js/faker';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, PrismaPromise, User } from '@prisma/client';
 
 export class DataBaseUtils {
-  static seed = async (prisma: PrismaClient) => {
-    await prisma.user.create({
-      data: {
-        id: 0,
-        email: faker.internet.email(),
-        name: faker.name.firstName(),
-      },
-    });
+  static seed = async (prisma: PrismaClient, nb = 5) => {
+    const prismaPromises: PrismaPromise<User>[] = [];
 
-    await prisma.user.create({
-      data: {
-        id: 1,
-        email: faker.internet.email(),
-        name: faker.name.firstName(),
-      },
-    });
+    for (let i = 0; i < nb; i++) {
+      prismaPromises.push(
+        prisma.user.create({
+          data: {
+            email: faker.internet.email(),
+            name: faker.name.firstName(),
+          },
+        })
+      );
+    }
+
+    await prisma.$transaction(prismaPromises);
   };
 
   static drop = async (prisma: PrismaClient) => {
-    await prisma.user.deleteMany({
-      where: {
-        id: {
-          in: [0, 1],
-        },
-      },
-    });
+    await prisma.user.deleteMany();
   };
 }
