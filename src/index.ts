@@ -1,6 +1,6 @@
 import { set } from 'lodash';
 
-import { PaginationOptions } from './types/Pagination';
+import { Paginated, PaginationOptions } from './types/Pagination';
 
 export const getPaginationsData = <T>(options: PaginationOptions<T> = {}) =>
   ({
@@ -36,7 +36,7 @@ export async function paginate<P, T>(
     Exclude<Parameters<P[typeof model]['findMany']>[0], undefined>,
     'where' | 'skip' | 'take' | 'orderBy'
   >
-) {
+): Promise<Paginated<T>> {
   const { page, limit } = getPaginationsData<T>({
     page: options?.page,
     limit: options?.limit,
