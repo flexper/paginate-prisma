@@ -9,6 +9,7 @@ export const getPaginationsData = <T>(options: PaginationOptions<T> = {}) =>
   } as { page: number; limit: number });
 
 export async function paginate<P, T>(
+  prisma: P,
   model: Exclude<
     keyof P,
     | '$on'
